@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="Dashboard.css">
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <h2>User Dashboard</h2>
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Mobile No</th>
+                <th>Username</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- User data will be populated here -->
+        </tbody>
+    </table>
+
+    <form id="updateForm">
+        <label for="updateFullName">Full Name:</label>
+        <input type="text" id="updateFullName" required><br>
+        <label for="updateEmail">Email:</label>
+        <input type="email" id="updateEmail" required><br>
+        <label for="updateMobile">Mobile No:</label>
+        <input type="text" id="updateMobile" required><br>
+        <label for="updateUsername">Username:</label>
+        <input type="text" id="updateUsername" required><br>
+        <!-- Add input field for updating username -->
+        <button type="submit">Update</button>
+    </form>
+
+    <script>
+        // Load user data from local storage and populate the table
+        document.addEventListener('DOMContentLoaded', function() {
+            const userTable = document.getElementById('userTable');
+            const users = Object.keys(localStorage);
+            const tbody = userTable.querySelector('tbody');
+            users.forEach(username => {
+                const userData = JSON.parse(localStorage.getItem(username));
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${userData.fullName}</td>
+                    <td>${userData.email}</td>
+                    <td>${userData.mobile}</td>
+                    <td>${userData.username}</td>
+                    <td>
+                        <button onclick="deleteUser('${username}')">Delete</button>
+                        <button onclick="displayUpdateForm('${username}', '${userData.fullName}', '${userData.email}', '${userData.mobile}', '${userData.username}')">Update</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+
+        function deleteUser(username) {
+            if (confirm(`Are you sure you want to delete the user ${username}?`)) {
+                localStorage.removeItem(username);
+                location.reload(); // Reload the page to reflect changes
+            }
+        }
+
+        function displayUpdateForm(username, fullName, email, mobile, currentUsername) {
+            document.getElementById('updateFullName').value = fullName;
+            document.getElementById('updateEmail').value = email;
+            document.getElementById('updateMobile').value = mobile;
+            document.getElementById('updateUsername').value = currentUsername; // Pre-fill username input field
+            document.getElementById('updateForm').style.display = 'block';
+            document.getElementById('updateForm').onsubmit = function(event) {
+                event.preventDefault();
+                const newFullName = document.getElementById('updateFullName').value;
+                const newEmail = document.getElementById('updateEmail').value;
+                const newMobile = document.getElementById('updateMobile').value;
+                const newUsername = document.getElementById('updateUsername').value; // Get updated username
+                if (newFullName && newEmail && newMobile && newUsername) { // Check if all fields are filled
+                    const updatedUser = {
+                        fullName: newFullName,
+                        email: newEmail,
+                        mobile: newMobile,
+                        username: newUsername // Use updated username
+                    };
+                    localStorage.removeItem(username); // Remove old user data
+                    localStorage.setItem(newUsername, JSON.stringify(updatedUser)); // Add updated user data
+                    location.reload(); // Reload the page to reflect changes
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>
